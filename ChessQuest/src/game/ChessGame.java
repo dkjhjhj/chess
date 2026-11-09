@@ -66,7 +66,7 @@ public class ChessGame {
 		currentTurn = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
 	}
 	
-	private Color getCurrentTurn() {
+	public Color getCurrentTurn() {
 		return currentTurn;
 	}
 	
@@ -98,5 +98,21 @@ public class ChessGame {
 		
 		return piece != null
 				&& piece.getColor() == currentTurn;
+	}
+
+	private boolean undoMove() {
+		if(!board.undoMove()) {
+			return false;
+		}
+		
+		changeTurn();
+		
+		return true;
+	}
+	
+	// UI에서 사용 가능한 턴 무르기
+	public void undoTurn() {
+		if(!undoMove()) return;
+		if(!undoMove()) return;
 	}
 }
