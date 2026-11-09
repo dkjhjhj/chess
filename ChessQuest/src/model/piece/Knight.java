@@ -3,6 +3,7 @@ package model.piece;
 import java.util.ArrayList;
 import java.util.List;
 
+import game.RuleManager;
 import model.Board;
 import model.Color;
 import model.Position;
@@ -44,6 +45,10 @@ public class Knight extends Piece{
 			Position move = new Position(nextRow, nextCol);
 			
 			if(board.hasPiece(move) && board.getPiece(move).getColor() == color) {
+				continue;
+			}
+			
+			if(!RuleManager.isLegalMove(board, position, move)) {
 				continue;
 			}
 			

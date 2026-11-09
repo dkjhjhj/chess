@@ -3,6 +3,7 @@ package game;
 import model.Board;
 import model.Color;
 import model.Position;
+import model.piece.King;
 import model.piece.Piece;
 
 public class RuleManager {
@@ -26,7 +27,50 @@ public class RuleManager {
 			}
 		}
 		 
-		 
 		return false;
+	}
+	
+	public static boolean isLegalMove(Board board, Position from, Position to) {
+		board.movePiece(from, to);
+		
+		King king = board.getKing(board.getPiece(from).getColor());
+		boolean isSafe = !isKingInCheck(board, king);
+		
+		board.undoMove();
+		
+		return isSafe;
+	}
+	
+	public static boolean hasAnyLegalMove(Board board, Color color) {
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				Position current = new Position(row, col);
+				Piece piece = board.getPiece(current);
+				
+				if (piece == null || piece.getColor() != color) {
+					continue;
+				}
+				
+				if (!piece.getPossibleMoves(board).isEmpty()) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	public static boolean isCheckmate(Board board, Color color) {
+		King king = board.getKing(color);
+		
+		return isKingInCheck(board, king)
+				&& !hasAnyLegalMove(board, color);
+	}
+	
+	public static boolean isStalemate(Board board, Color color) {
+		King king = board.getKing(color);
+		
+		return !isKingInCheck(board, king)
+				&& !hasAnyLegalMove(board, color);
 	}
 }

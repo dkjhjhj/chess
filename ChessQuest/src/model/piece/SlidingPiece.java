@@ -3,6 +3,7 @@ package model.piece;
 import java.util.ArrayList;
 import java.util.List;
 
+import game.RuleManager;
 import model.Board;
 import model.Color;
 import model.Position;
@@ -30,16 +31,19 @@ public abstract class SlidingPiece extends Piece {
 		
 			while(board.isInside(nextRow, nextCol)) {				
 				Position move = new Position(nextRow, nextCol);
-			
-				if(!board.hasPiece(move)) {
-					moves.add(move);
-				} else {
-					if(board.getPiece(move).color != color) {
-						moves.add(move);
-					}
+				Piece target = board.getPiece(move);
 				
+				if(target != null && target.color == color) {
 					break;
 				}
+				
+				if(RuleManager.isLegalMove(board, position, move)) {
+					moves.add(move);
+				}
+				
+				if (target != null) {
+			        break;
+			    }
 			
 				nextRow += dr;
 				nextCol += dc;

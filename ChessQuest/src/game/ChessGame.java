@@ -1,5 +1,8 @@
 package game;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import model.Board;
 import model.Color;
 import model.Position;
@@ -16,6 +19,8 @@ public class ChessGame {
 	public static final int BOARD_HEIGHT = 8;
 	
 	private Board board;
+	private Color currentTurn = Color.WHITE;
+	private boolean gameOver = false;
 	
 	public ChessGame() {
 		board = new Board();
@@ -23,6 +28,7 @@ public class ChessGame {
 	}
 	
 	private void initializeBoard() {
+		// 폰 배치
 		for(int col = 0; col < BOARD_WIDTH; col++) {
 			Pawn whitePawn = new Pawn(Color.WHITE, new Position(BOARD_HEIGHT - 2, col));
 			Pawn blackPawn = new Pawn(Color.BLACK, new Position(1, col));
@@ -34,6 +40,7 @@ public class ChessGame {
 		Piece[] whitePieces = createBackRow(Color.WHITE, BOARD_HEIGHT - 1);
 		Piece[] blackPieces = createBackRow(Color.BLACK, 0);
 		
+		// 후열 배치
 		for(int i = 0; i < whitePieces.length; i++) {
 			board.setPiece(whitePieces[i].getPosition(), whitePieces[i]);
 			board.setPiece(blackPieces[i].getPosition(), blackPieces[i]);
@@ -52,5 +59,67 @@ public class ChessGame {
 			new Knight(color, new Position(row, 6)),
 			new Rook(color, new Position(row, 7))
 		};
+	}
+
+	private void changeTurn() {
+		currentTurn = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
+	}
+	
+	private boolean undoMove() {
+		if(!board.undoMove()) {
+			return false;
+		}
+		
+		changeTurn();
+		
+		return true;
+	}
+	
+	public Color getCurrentTurn() {
+		return currentTurn;
+	}
+	
+	// 특정 좌표에 위치한 기물 획득	
+	public Piece getPiece(Position position) {
+		return board.getPiece(position);
+	}
+	
+	// 특정 좌표의 기물이 이동할 수 있는 좌표를 가져오는 함수
+	public List<Position> getPossibleMoves(Position position) {
+		Piece piece = getPiece(position);
+		
+		if(piece == null) {
+			return new ArrayList<>();
+		}
+		
+		return piece.getPossibleMoves(board);
+	}
+	
+	// 특정 좌표의 기물을 이동시키는 함수
+	public void movePiece(Position from, Position to) {
+		board.movePiece(from, to);
+		changeTurn();
+		
+		if (RuleManager.isCheckmate(board, currentTurn)) {
+			gameOver = true;
+			// 체크메이트
+		} else if (RuleManager.isStalemate(board, currentTurn)) {
+			gameOver = true;
+			// 스테일메이트
+		}
+	}
+	
+	// 현재 턴이 맞는지 체크하는 함수
+	public boolean isSelectable(Position position) {
+		Piece piece = getPiece(position);
+		
+		return piece != null
+				&& piece.getColor() == currentTurn;
+	}
+	
+	// UI에서 사용 가능한 턴 무르기
+	public void undoTurn() {
+		if(!undoMove()) return;
+		if(!undoMove()) return;
 	}
 }
