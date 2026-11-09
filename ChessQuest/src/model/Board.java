@@ -33,6 +33,10 @@ public class Board {
 			throw new IllegalArgumentException("해당 위치에 기물이 없습니다.");
 		}
 		
+		if(getPiece(to) != null) {
+			removePiece(to);
+		}
+		
 		setPiece(to, piece);
 		removePiece(from);
 		piece.setPosition(to);
