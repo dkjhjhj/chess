@@ -20,6 +20,7 @@ public class ChessGame {
 	
 	private Board board;
 	private Color currentTurn = Color.WHITE;
+	private boolean gameOver = false;
 	
 	public ChessGame() {
 		board = new Board();
@@ -98,6 +99,14 @@ public class ChessGame {
 	public void movePiece(Position from, Position to) {
 		board.movePiece(from, to);
 		changeTurn();
+		
+		if (RuleManager.isCheckmate(board, currentTurn)) {
+			gameOver = true;
+			// 체크메이트
+		} else if (RuleManager.isStalemate(board, currentTurn)) {
+			gameOver = true;
+			// 스테일메이트
+		}
 	}
 	
 	// 현재 턴이 맞는지 체크하는 함수
