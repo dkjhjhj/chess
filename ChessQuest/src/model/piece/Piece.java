@@ -28,4 +28,8 @@ public abstract class Piece {
 	}
 	
 	public abstract List<Position> getPossibleMoves(Board board);
+	
+	public List<Position> getAttackPositions(Board board) {
+        return getPossibleMoves(board);
+    }
 }

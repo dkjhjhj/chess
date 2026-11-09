@@ -38,13 +38,9 @@ public class Pawn extends Piece {
 		}
 		
 		// 대각선 공격
-		for(int dc : new int[] {-1, 1}) {
-			if(!board.isInside(nextRow, col + dc)) {
-				continue;
-			}
-			
-			Position attack = new Position(nextRow, col + dc);
-			
+		List<Position> positions = getDiagonalPositions(board);
+		
+		for(Position attack : positions) {
 			if(board.hasPiece(attack) &&
 					board.getPiece(attack).color != color) {
 				moves.add(attack);
@@ -52,5 +48,28 @@ public class Pawn extends Piece {
 		}
 		
 		return moves;
+	}
+	
+	@Override
+	public List<Position> getAttackPositions(Board board) {
+		return getDiagonalPositions(board);
+	}
+	
+	private List<Position> getDiagonalPositions(Board board) {
+	    List<Position> positions = new ArrayList<>();
+
+	    int direction = (color == Color.WHITE) ? -1 : 1;
+	    int nextRow = position.getRow() + direction;
+	    int col = position.getCol();
+
+	    for (int dc : new int[] {-1, 1}) {
+	        int nextCol = col + dc;
+
+	        if (board.isInside(nextRow, nextCol)) {
+	            positions.add(new Position(nextRow, nextCol));
+	        }
+	    }
+
+	    return positions;
 	}
 }

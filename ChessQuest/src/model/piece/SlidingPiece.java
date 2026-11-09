@@ -35,7 +35,7 @@ public abstract class SlidingPiece extends Piece {
 					moves.add(move);
 				} else {
 					if(board.getPiece(move).color != color) {
-					moves.add(move);
+						moves.add(move);
 					}
 				
 					break;
