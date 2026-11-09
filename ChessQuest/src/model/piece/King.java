@@ -3,6 +3,7 @@ package model.piece;
 import java.util.ArrayList;
 import java.util.List;
 
+import game.RuleManager;
 import model.Board;
 import model.Color;
 import model.Position;
@@ -43,19 +44,15 @@ public class King extends Piece{
 			
 			Position move = new Position(nextRow, nextCol);
 			
-			if(!board.hasPiece(move)) {
-				moves.add(move);
-			} else {
-				if(board.getPiece(move).color != color) {
-					moves.add(move);
-				}
+			if(board.hasPiece(move) && board.getPiece(move).color == color) {
+				continue;
+			}
 			
-				break;
+			if(!RuleManager.isPositionAttacked(board, move, color)) {
+				moves.add(move);
 			}
 		}
 		
 		return moves;
 	}
-	
-	// 킹이 공격받는 위치인지 확인해야함!
 }
