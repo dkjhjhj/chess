@@ -3,6 +3,7 @@ package model.piece;
 import java.util.ArrayList;
 import java.util.List;
 
+import game.RuleManager;
 import model.Board;
 import model.Color;
 import model.Position;
@@ -23,17 +24,22 @@ public class Pawn extends Piece {
 		
 		// 한 칸 행진
 		int nextRow = row + direction;
-		if(board.isInside(nextRow, col) &&
-				!board.hasPiece(new Position(nextRow, col))) {
-			moves.add(new Position(nextRow, col));
+		
+		Position move = new Position(nextRow, col);
+		if(board.isInside(nextRow, col) && !board.hasPiece(move) &&
+				RuleManager.isLegalMove(board, position, move)) {
+			moves.add(move);
 			
 			// 두 칸 행진
 			int startRow = (color == Color.WHITE) ? 6 : 1;
 			int doubleRow = row + direction * 2;
+			
+			move = new Position(doubleRow, col);
 			if(row == startRow &&
 					board.isInside(doubleRow, col) &&
-					!board.hasPiece(new Position(doubleRow, col))) {
-				moves.add(new Position(doubleRow, col));
+					!board.hasPiece(move) &&
+					RuleManager.isLegalMove(board, position, move)) {
+				moves.add(move);
 			}
 		}
 		
@@ -42,7 +48,8 @@ public class Pawn extends Piece {
 		
 		for(Position attack : positions) {
 			if(board.hasPiece(attack) &&
-					board.getPiece(attack).color != color) {
+					board.getPiece(attack).color != color &&
+					RuleManager.isLegalMove(board, position, attack)) {
 				moves.add(attack);
 			}
 		}

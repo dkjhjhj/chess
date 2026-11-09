@@ -3,6 +3,7 @@ package model;
 import java.util.Stack;
 
 import game.ChessGame;
+import model.piece.King;
 import model.piece.Piece;
 
 public class Board {
@@ -62,6 +63,20 @@ public class Board {
 		}
 		
 		return true;
+	}
+	
+	public King getKing(Color color) {
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				Piece piece = board[row][col];
+				
+				if(piece instanceof King && piece.getColor() == color) {
+					return (King) piece;
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	public boolean isInside(int row, int col) {

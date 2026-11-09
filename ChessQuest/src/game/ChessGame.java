@@ -26,7 +26,6 @@ public class ChessGame {
 		initializeBoard();
 	}
 	
-	// 보드 초기 세팅
 	private void initializeBoard() {
 		// 폰 배치
 		for(int col = 0; col < BOARD_WIDTH; col++) {
@@ -48,7 +47,6 @@ public class ChessGame {
 		
 	}
 	
-	// 후열 기물
 	private Piece[] createBackRow(Color color, int row) {
 		return new Piece[] {
 			new Rook(color, new Position(row, 0)),
@@ -64,6 +62,16 @@ public class ChessGame {
 
 	private void changeTurn() {
 		currentTurn = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
+	}
+	
+	private boolean undoMove() {
+		if(!board.undoMove()) {
+			return false;
+		}
+		
+		changeTurn();
+		
+		return true;
 	}
 	
 	public Color getCurrentTurn() {
@@ -98,16 +106,6 @@ public class ChessGame {
 		
 		return piece != null
 				&& piece.getColor() == currentTurn;
-	}
-
-	private boolean undoMove() {
-		if(!board.undoMove()) {
-			return false;
-		}
-		
-		changeTurn();
-		
-		return true;
 	}
 	
 	// UI에서 사용 가능한 턴 무르기
