@@ -1,0 +1,58 @@
+package model.piece;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import game.RuleManager;
+import model.Board;
+import model.Color;
+import model.Position;
+
+public class King extends Piece{
+	public King(Color color, Position position) {
+		super(color, position);
+	}
+	
+	@Override
+	public List<Position> getPossibleMoves(Board board) {
+		List<Position> moves = new ArrayList<>();
+		
+		int[][] directions = {
+				{-1, 1},	// 우측 대각선 상단
+				{1, 1},		// 우측 대각선 하단
+				{-1, -1},	// 좌측 대각선 상단
+				{1, -1},	// 좌측 대각선 하단
+				{-1, 0},	// 위
+				{1, 0},		// 아래
+				{0, -1},	// 왼쪽
+				{0, 1}		// 오른쪽
+		};
+		
+		int row = position.getRow();
+		int col = position.getCol();
+		
+		for(int[] direction : directions) {
+			int dr = direction[0];
+			int dc = direction[1];
+		
+			int nextRow = row + dr;
+			int nextCol = col + dc;
+			
+			if(!board.isInside(nextRow, nextCol)) {
+				continue;
+			}
+			
+			Position move = new Position(nextRow, nextCol);
+			
+			if(board.hasPiece(move) && board.getPiece(move).color == color) {
+				continue;
+			}
+			
+			if(!RuleManager.isPositionAttacked(board, move, color)) {
+				moves.add(move);
+			}
+		}
+		
+		return moves;
+	}
+}
