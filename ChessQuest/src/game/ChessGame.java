@@ -109,13 +109,23 @@ public class ChessGame {
 	public Color getCurrentTurn() {
 		return currentTurn;
 	}
-	
-	// 특정 좌표에 위치한 기물 획득	
+
+	/**
+	 * 특정 좌표에 위치한 기물을 반환한다.
+	 *
+	 * @param position 조회할 기물의 위치
+	 * @return 해당 위치의 기물, 기물이 없다면 null
+	 */
 	public Piece getPiece(Position position) {
 		return board.getPiece(position);
 	}
 	
-	// 특정 좌표의 기물이 이동할 수 있는 좌표를 가져오는 함수
+	/**
+	 * 특정 좌표에 위치한 기물의 이동가능한 좌표들을 반환한다.
+	 * 
+	 * @param position 조회할 기물의 위치
+	 * @return 해당 위치의 기물이 이동가능한 좌표 목록, 없다면 빈 리스트
+	 */
 	public List<Position> getPossibleMoves(Position position) {
 		Piece piece = getPiece(position);
 		
@@ -126,7 +136,12 @@ public class ChessGame {
 		return piece.getPossibleMoves(board);
 	}
 	
-	// 특정 좌표의 기물을 이동시키는 함수
+	/**
+	 * 한 좌표에서 다른 좌표로 기물을 이동시킨다.
+	 * 
+	 * @param from 기물이 위치할 첫 번째 좌표
+	 * @param to 기물이 이동할 두 번째 좌표
+	 */
 	public void movePiece(Position from, Position to) {
 		board.movePiece(from, to);
 			if(isPromotion(to)) {
@@ -137,7 +152,11 @@ public class ChessGame {
 		finishTurn();
 	}
 	
-	// 프로모션 타입을 선택하는 것
+	/**
+	 * 프로모션 타입을 받고, 폰을 프로모션시킨다.
+	 * 
+	 * @param type 프로모션할 기물의 타입
+	 */
 	public void promotionPiece(PieceType type) {
 		if(pendingPromotion == null) {
 			return;
@@ -149,7 +168,12 @@ public class ChessGame {
 		finishTurn();
 	}
 	
-	// 현재 턴이 맞는지 체크하는 함수
+	/**
+	 * 현재 턴이 맞는지 체크한다.
+	 * 
+	 * @param position 움직이고자하는 기물의 위치
+	 * @return 기물의 이동가능 여부 판단
+	 */
 	public boolean isSelectable(Position position) {
 		Piece piece = getPiece(position);
 		
@@ -157,7 +181,9 @@ public class ChessGame {
 				&& piece.getColor() == currentTurn;
 	}
 	
-	// UI에서 사용 가능한 턴 무르기
+	/**
+	 * 한 턴 뒤로 무른다.
+	 */
 	public void undoTurn() {
 		if(!undoMove()) return;
 		if(!undoMove()) return;
