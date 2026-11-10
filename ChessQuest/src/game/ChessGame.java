@@ -11,6 +11,7 @@ import model.piece.King;
 import model.piece.Knight;
 import model.piece.Pawn;
 import model.piece.Piece;
+import model.piece.PieceType;
 import model.piece.Queen;
 import model.piece.Rook;
 
@@ -21,6 +22,7 @@ public class ChessGame {
 	private Board board;
 	private Color currentTurn = Color.WHITE;
 	private boolean gameOver = false;
+	private Position pendingPromotion;
 	
 	public ChessGame() {
 		board = new Board();
@@ -65,6 +67,18 @@ public class ChessGame {
 		currentTurn = (currentTurn == Color.WHITE) ? Color.BLACK : Color.WHITE;
 	}
 	
+	private void finishTurn() {
+		changeTurn();
+		
+		if (RuleManager.isCheckmate(board, currentTurn)) {
+			gameOver = true;
+			// 체크메이트
+		} else if (RuleManager.isStalemate(board, currentTurn)) {
+			gameOver = true;
+			// 스테일메이트
+		}
+	}
+	
 	private boolean undoMove() {
 		if(!board.undoMove()) {
 			return false;
@@ -73,6 +87,23 @@ public class ChessGame {
 		changeTurn();
 		
 		return true;
+	}
+	
+	private boolean isPromotion(Position position) {
+		Piece piece = board.getPiece(position);
+		
+		if(!(piece instanceof Pawn)) {
+			return false;
+		}
+		
+		switch(piece.getColor()) {
+			case Color.WHITE:
+				return position.getRow() == 0;
+			case Color.BLACK:
+				return position.getRow() == BOARD_HEIGHT - 1;
+			default:
+				return false;
+		}
 	}
 	
 	public Color getCurrentTurn() {
@@ -98,15 +129,24 @@ public class ChessGame {
 	// 특정 좌표의 기물을 이동시키는 함수
 	public void movePiece(Position from, Position to) {
 		board.movePiece(from, to);
-		changeTurn();
+			if(isPromotion(to)) {
+				pendingPromotion = to;
+				return;
+			}
 		
-		if (RuleManager.isCheckmate(board, currentTurn)) {
-			gameOver = true;
-			// 체크메이트
-		} else if (RuleManager.isStalemate(board, currentTurn)) {
-			gameOver = true;
-			// 스테일메이트
+		finishTurn();
+	}
+	
+	// 프로모션 타입을 선택하는 것
+	public void promotionPiece(PieceType type) {
+		if(pendingPromotion == null) {
+			return;
 		}
+		
+		board.promote(pendingPromotion, type);
+		pendingPromotion = null;
+		
+		finishTurn();
 	}
 	
 	// 현재 턴이 맞는지 체크하는 함수

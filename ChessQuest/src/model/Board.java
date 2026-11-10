@@ -3,8 +3,14 @@ package model;
 import java.util.Stack;
 
 import game.ChessGame;
+import model.piece.Bishop;
 import model.piece.King;
+import model.piece.Knight;
+import model.piece.Pawn;
 import model.piece.Piece;
+import model.piece.PieceType;
+import model.piece.Queen;
+import model.piece.Rook;
 
 public class Board {
 	private Piece[][] board;
@@ -24,6 +30,10 @@ public class Board {
 	
 	public void setPiece(Position position, Piece piece) {
 		board[position.getRow()][position.getCol()] = piece;
+		
+		if(piece != null) {
+			piece.setPosition(position);
+		}
 	}
 	
 	public void removePiece(Position position) {
@@ -42,7 +52,6 @@ public class Board {
 		
 		setPiece(to, piece);
 		removePiece(from);
-		piece.setPosition(to);
 		
 		moveHistory.add(move);
 	}
@@ -55,14 +64,49 @@ public class Board {
 		Move move = moveHistory.pop();
 		Piece piece = getPiece(move.getTo());
 		
+		if(move.getPromotionType() != null) {
+			piece = move.getOriginalPiece();
+		}
+		
 		setPiece(move.getFrom(), piece);
-		piece.setPosition(move.getFrom());
+		removePiece(move.getTo());
 		
 		if(move.getCapturedPiece() != null) {
-			setPiece(move.getFrom(), move.getCapturedPiece());
+			setPiece(move.getTo(), move.getCapturedPiece());
 		}
 		
 		return true;
+	}
+	
+	public void promote(Position position, PieceType pieceType) {
+		Piece pawn = getPiece(position);
+		
+		if(!(pawn instanceof Pawn)) {
+			throw new IllegalArgumentException("폰이 아닙니다.");
+		}
+		
+		Move move = moveHistory.peek();
+		
+		move.setOriginalPiece(pawn);
+		move.setPromotionType(pieceType);
+		
+		Piece promotionPiece = createPiece(pieceType, pawn.getColor(), position);
+		setPiece(position, promotionPiece);
+	}
+	
+	private Piece createPiece(PieceType type, Color color, Position position) {
+		switch(type) {
+		case PieceType.ROOK:
+			return new Rook(color, position);
+		case PieceType.KNIGHT:
+			return new Knight(color, position);
+		case PieceType.BISHOP:
+			return new Bishop(color, position);
+		case PieceType.QUEEN:
+			return new Queen(color, position);
+		default:
+			return null;
+		}
 	}
 	
 	public King getKing(Color color) {
