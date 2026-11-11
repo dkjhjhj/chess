@@ -111,6 +111,14 @@ public class ChessGame {
 	}
 
 	/**
+	 * 보드판 전체를 반환한다.
+	 * @return 기물들의 8x8 배열
+	 */
+	public Piece[][] getBoard() {
+		return board.getBoard();
+	}
+	
+	/**
 	 * 특정 좌표에 위치한 기물을 반환한다.
 	 *
 	 * @param position 조회할 기물의 위치

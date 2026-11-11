@@ -37,6 +37,10 @@ public class Board {
 		}
 	}
 	
+	public Piece[][] getBoard() {
+		return board;
+	}
+	
 	public void removePiece(Position position) {
         board[position.getRow()][position.getCol()] = null;
     }
@@ -49,8 +53,10 @@ public class Board {
 		}
 		
 		Piece capturedPiece;
+		Piece previousEnPassant = null;
 		if(isEnPassantMove(piece, to)) {
 			capturedPiece = enPassantPawn;
+			previousEnPassant = enPassantPawn;
 			removePiece(enPassantPawn.getPosition());
 		} else {
 			capturedPiece = getPiece(to);
@@ -66,6 +72,7 @@ public class Board {
 		
 		Move move = new Move(from, to, capturedPiece);
 		
+		move.setPreviousEnPassant(previousEnPassant);
 		setPiece(to, piece);
 		moveHistory.add(move);
 	}
@@ -88,6 +95,15 @@ public class Board {
 		if(move.getCapturedPiece() != null) {
 			Piece capturedPiece = move.getCapturedPiece();
 			setPiece(capturedPiece.getPosition(), capturedPiece);
+		}
+		
+		// 앙파상 여부 복구
+		if(enPassantPawn != null) {
+			enPassantPawn = null;
+		}
+		
+		if(move.getPreviousEnPassant() != null) {
+			enPassantPawn = move.getPreviousEnPassant();
 		}
 		
 		return true;

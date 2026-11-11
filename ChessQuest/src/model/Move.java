@@ -10,6 +10,7 @@ public class Move {
 	
 	private Piece originalPiece;
     private PieceType promotionType;
+    private Piece previousEnPassant;
 	
 	public Move(Position from, Position to, Piece capturedPiece) {
 		this.from = from;
@@ -43,5 +44,13 @@ public class Move {
 	
 	public void setPromotionType(PieceType type) {
 		promotionType = type;
+	}
+	
+	public Piece getPreviousEnPassant() {
+		return previousEnPassant;
+	}
+	
+	public void setPreviousEnPassant(Piece pawn) {
+		previousEnPassant = pawn;
 	}
 }
