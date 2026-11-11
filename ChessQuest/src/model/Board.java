@@ -15,6 +15,7 @@ import model.piece.Rook;
 public class Board {
 	private Piece[][] board;
 	private Stack<Move> moveHistory = new Stack<>();
+	private Piece enPassantPawn;
 	
 	public Board() {
 		board = new Piece[ChessGame.BOARD_HEIGHT][ChessGame.BOARD_WIDTH];
@@ -47,12 +48,25 @@ public class Board {
 			throw new IllegalArgumentException("해당 위치에 기물이 없습니다.");
 		}
 		
-		Piece capturedPiece = getPiece(to);
+		Piece capturedPiece;
+		if(isEnPassantMove(piece, to)) {
+			capturedPiece = enPassantPawn;
+			removePiece(enPassantPawn.getPosition());
+		} else {
+			capturedPiece = getPiece(to);
+			removePiece(to);
+		}
+		
+		removePiece(from);
+		
+		enPassantPawn = null;
+		if(canEnPassant(piece, to)) {
+			enPassantPawn = piece;
+		}
+		
 		Move move = new Move(from, to, capturedPiece);
 		
 		setPiece(to, piece);
-		removePiece(from);
-		
 		moveHistory.add(move);
 	}
 	
@@ -72,7 +86,8 @@ public class Board {
 		removePiece(move.getTo());
 		
 		if(move.getCapturedPiece() != null) {
-			setPiece(move.getTo(), move.getCapturedPiece());
+			Piece capturedPiece = move.getCapturedPiece();
+			setPiece(capturedPiece.getPosition(), capturedPiece);
 		}
 		
 		return true;
@@ -127,4 +142,28 @@ public class Board {
 	    return row >= 0 && row < ChessGame.BOARD_HEIGHT
 	        && col >= 0 && col < ChessGame.BOARD_WIDTH;
 	}
+	
+	private boolean canEnPassant(Piece piece, Position to) {
+		return piece instanceof Pawn && 
+				Math.abs(to.getRow() - piece.getPosition().getRow()) == 2;
+		
+	}
+	
+	private boolean isEnPassantMove(Piece piece, Position to) {
+		if(enPassantPawn != null &&														// 앙파상한 기물이 있어야 한다.
+				piece instanceof Pawn &&												// 움직인 기물이 폰이어야 한다.
+				piece.getAttackPositions(this).contains(to) &&							// 그 폰이 공격해야한다.
+				piece.getPosition().getRow() == enPassantPawn.getPosition().getRow() &&	// 폰과 앙파상 폰이 같은 열에 있어야 한다.
+				to.getCol() == enPassantPawn.getPosition().getCol()) {					// 목적지가 앙파상 폰과 같은 행에 위치해야 한다.
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public Piece getEnPassantPawn() {
+		return enPassantPawn;
+	}
+	
+	
 }
