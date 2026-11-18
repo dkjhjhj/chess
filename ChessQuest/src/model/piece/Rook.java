@@ -4,6 +4,8 @@ import model.Color;
 import model.Position;
 
 public class Rook extends SlidingPiece {
+	private boolean isMove = false;
+	
 	public Rook(Color color, Position position) {
 		super(color, position);
 	}
@@ -18,5 +20,13 @@ public class Rook extends SlidingPiece {
 		};
 		
 		return directions;
+	}
+	
+	public boolean getMoving() {
+		return isMove;
+	}
+	
+	public void setMoving() {
+		isMove = true;
 	}
 }

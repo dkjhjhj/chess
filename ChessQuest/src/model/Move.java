@@ -9,8 +9,8 @@ public class Move {
 	private Piece capturedPiece;
 	
 	private Piece originalPiece;
-    private PieceType promotionType;
-    private Piece previousEnPassant;
+	private PieceType promotionType;
+	private Piece previousEnPassant;
 	
 	public Move(Position from, Position to, Piece capturedPiece) {
 		this.from = from;

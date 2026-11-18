@@ -41,7 +41,6 @@ public class RuleManager {
 		return isSafe;
 	}
 	
-	// 앙파상 여부 체크?
 	
 	public static boolean hasAnyLegalMove(Board board, Color color) {
 		for (int row = 0; row < 8; row++) {

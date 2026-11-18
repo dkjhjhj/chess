@@ -9,6 +9,11 @@ import model.Color;
 import model.Position;
 
 public class King extends Piece{
+	public static final int LEFT = 1;
+	public static final int RIGHT = 2;
+	
+	private boolean isMove = false;
+	
 	public King(Color color, Position position) {
 		super(color, position);
 	}
@@ -53,6 +58,33 @@ public class King extends Piece{
 			}
 		}
 		
+		if(!RuleManager.isKingInCheck(board, this)) {
+			int direction = board.canCastling(this);
+			
+			if((direction & LEFT) != 0) {
+				moves.add(new Position(row, col - 2));
+			}
+			
+			if((direction & RIGHT) != 0) {
+				moves.add(new Position(row, col + 2));
+			}
+		}
+		
 		return moves;
 	}
+	
+	public boolean getMoving() {
+		return isMove;
+	}
+	
+	public void setMoving() {
+		isMove = true;
+	}
+	
+	/** 캐슬링
+	 *  조건 3. 킹과 룩 사이 어떠한 기물도 있으면 안된다.
+	 *  조건 4. 킹과 룩 사이, 정확히는 캐슬링을 위한 공간인 킹으로부터 움직일 방향 2칸 내가 공격받아선 안된다.
+	 *  -> RuleManager의 isPositionAttacked() 함수에서 쉽게 체크 가능
+	 *  
+	 */
 }
