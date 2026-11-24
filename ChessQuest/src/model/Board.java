@@ -21,6 +21,7 @@ public class Board {
 	/**
 	 * 1. 룩과 킹 실제 이동시 setMoving 함수 불러야함
 	 * 2. 캐슬링 따로 만들어야함
+	 * 3. 캐슬링 undo 따로 만들어야함
 	 */
 	
 	public Board() {
@@ -44,13 +45,18 @@ public class Board {
 	}
 	
 	public Piece[][] getBoard() {
-		return board;
+		Piece[][] copy = new Piece[board.length][];
+		
+		for(int i = 0; i < board.length; i++) {
+			copy[i] = board[i].clone();
+		}
+		
+		return copy;
 	}
 	
 	public void removePiece(Position position) {
         board[position.getRow()][position.getCol()] = null;
     }
-	
 	public void movePiece(Position from, Position to) {
 		Piece piece = getPiece(from);
 		
