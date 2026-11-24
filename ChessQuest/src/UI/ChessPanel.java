@@ -39,6 +39,7 @@ public class ChessPanel extends JPanel {
 	private void handleClick(int r, int c) {
 		ChessGame game = ui.getGame();
 		game.handleBoardClick(new Position(r, c));
+		selected = game.getSelectPosition();
 		refresh();
 	}
 	public void clearSelection() {
