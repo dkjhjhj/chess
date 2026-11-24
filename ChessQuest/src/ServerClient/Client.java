@@ -36,14 +36,14 @@ public class Client {
 	private int serverPort;
 	private Socket socket;
 	private ObjectOutputStream out;
-	private Writer out1;
-	private DataInputStream in;
+	private ObjectInputStream in;
 	private Thread receiveThread;
 	private JTextField t_userID;
 	private JTextField t_address;
 	private JTextField t_port;
 	private JTextField t_id, t_pt, t_ad;
 	private gameUI ui;
+	private ChessInf data;
 	
 	
 	public Client(String serverAddress, int serverPort) {
@@ -147,7 +147,7 @@ public class Client {
 				b_exit.setEnabled(false);
 				b_send.setEnabled(true);
 				connectToServer();
-				ui = new gameUI();
+				ui = new gameUI(Client.this);
 				frame.getContentPane().removeAll();
 				frame.add(ui);
 				frame.revalidate();
@@ -183,8 +183,8 @@ public class Client {
 		try {
 			socket = new Socket(serverAddress, serverPort);
 			out = new ObjectOutputStream(new DataOutputStream(socket.getOutputStream()));
-			in = new DataInputStream(socket.getInputStream());
-			sendUserID();
+			//
+			//sendUserID();
 			
 			
 			receiveThread = new Thread(new Runnable() {
@@ -204,18 +204,18 @@ public class Client {
 			System.exit(0);
 		}
 	}
-	private void sendUserID() {
-		String id = t_userID.getText();
+	/*private void sendUserID() {
 		
 		try {
-			out1 = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(),"UTF-8"));
-			out1.write("/uid:" + id + "\n");
-			out1.flush();
+			String id = t_userID.getText();
+			ChessInf chessInf = new ChessInf();
+			chessInf.setId(id);
+			out.writeObject(chessInf);
+			out.flush();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	}*/
 	private void disconnect() {
 		try {
 			receiveThread = null;
@@ -225,18 +225,12 @@ public class Client {
 			System.exit(-1);
 		}
 	}
-	/*private void sendMessage() {
+
+	public void sendMessage(ChessInf data) {
 		try {
-			//String msg = t_cal.getText();
-			double operand1,operand2;
-			char operator;
-			//operand1 = Double.parseDouble(t_num1.getText());//스트링문자를 double형으로 변환
-			//operand2 = Double.parseDouble(t_num2.getText());
-			//operator = msg.charAt(0);//스트링문자를 char형으로 변환
-			//ChessInf calcExpr = new ChessInf(operand1,operator,operand2);
-			//t_display.append("나: " + msg + "\n");
-			//t_display.setCaretPosition(t_display.getDocument().getLength());
-			//out.writeObject(calcExpr);
+			
+			ChessInf chessInf = data;
+			out.writeObject(chessInf);
 			out.flush();
 		} catch (IOException e){
 			System.err.println("클라이언트 쓰기 오류> " + e.getMessage());
@@ -249,12 +243,19 @@ public class Client {
 	
 	private void receiveMessage() {
 		try {
-			String inMsg = ((BufferedReader)in).readLine();
-			t_display.append(inMsg + "\n");
-		}catch(IOException e){
-			System.out.println("클라이언트 일반 수신 오류> " + e.getMessage());
+			in = new ObjectInputStream(socket.getInputStream());
+			ChessInf chessInf;
+			while ((chessInf = (ChessInf) in.readObject()) != null) {
+				
+			}
+
+		} catch (IOException e){
+			
+		}catch (ClassNotFoundException e) {
+		    System.out.println("클래스 찾기 오류> ." + e.getMessage());
 		}
-	}*/
+
+	}
 
 	public static void main(String[] args) {
 		String serverAddress = "127.0.0.2";

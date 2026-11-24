@@ -184,7 +184,7 @@ public class Server {
 		public ClientHandler(Socket clientSocket) {
 			this.clientSocket = clientSocket;
 		}
-		/*private void receiveMessages(Socket cs) {
+		private void receiveMessages(Socket cs) {
 			try {
 				BufferedReader in = new BufferedReader(new InputStreamReader(cs.getInputStream(),"UTF-8"));
 				out = new BufferedWriter(new OutputStreamWriter(cs.getOutputStream(),"UTF-8"));
@@ -233,7 +233,7 @@ public class Server {
 			for(int i=0;i<users.size();i++) {
 				users.get(i).sendMessage(msg);
 			}
-		}*/
+		}
 		
 		@Override
 		public void run() {
