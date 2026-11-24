@@ -38,32 +38,8 @@ public class ChessPanel extends JPanel {
 	}
 	private void handleClick(int r, int c) {
 		ChessGame game = ui.getGame();
-		if(selected == null) {
-			if(game.isSelectable(new Position(r,c))) {
-				selected = new Position(r,c);
-				ui.refresh();
-			}
-		}
-		else {
-			if(selected.getRow() == r && selected.getCol() == c) {
-				selected = null;
-				ui.refresh();
-			}
-			else if(game.isSelectable(new Position(r,c))) {
-				selected = new Position(r,c);
-				ui.refresh();
-			}
-			else {
-				for(Position p:positions) {
-					if(p.getRow() == r && p.getCol() == c) {
-						game.movePiece(selected, new Position(r,c));
-						selected = null;
-						ui.refresh();
-						break;
-					}
-				}
-			}
-		}
+		game.handleBoardClick(selected);
+		refresh();
 	}
 	public void clearSelection() {
 		selected = null;
