@@ -31,9 +31,11 @@ public class RuleManager {
 	}
 	
 	public static boolean isLegalMove(Board board, Position from, Position to) {
+		Piece piece = board.getPiece(from);
+		
 		board.movePiece(from, to);
 		
-		King king = board.getKing(board.getPiece(from).getColor());
+		King king = board.getKing(piece.getColor());
 		boolean isSafe = !isKingInCheck(board, king);
 		
 		board.undoMove();
