@@ -14,34 +14,31 @@ public class King extends Piece{
 	
 	private boolean isMove = false;
 	
+	int[][] directions = {
+			{-1, 1},	// 우측 대각선 상단
+			{1, 1},		// 우측 대각선 하단
+			{-1, -1},	// 좌측 대각선 상단
+			{1, -1},	// 좌측 대각선 하단
+			{-1, 0},	// 위
+			{1, 0},		// 아래
+			{0, -1},	// 왼쪽
+			{0, 1}		// 오른쪽
+	};
+	
 	public King(Color color, Position position) {
 		super(color, position);
 	}
 	
 	@Override
-	public List<Position> getPossibleMoves(Board board) {
-		List<Position> moves = new ArrayList<>();
-		
-		int[][] directions = {
-				{-1, 1},	// 우측 대각선 상단
-				{1, 1},		// 우측 대각선 하단
-				{-1, -1},	// 좌측 대각선 상단
-				{1, -1},	// 좌측 대각선 하단
-				{-1, 0},	// 위
-				{1, 0},		// 아래
-				{0, -1},	// 왼쪽
-				{0, 1}		// 오른쪽
-		};
+	protected List<Position> getRawPositions(Board board) {
+		List<Position> positions = new ArrayList<>();
 		
 		int row = position.getRow();
 		int col = position.getCol();
 		
 		for(int[] direction : directions) {
-			int dr = direction[0];
-			int dc = direction[1];
-		
-			int nextRow = row + dr;
-			int nextCol = col + dc;
+			int nextRow = row + direction[0];
+			int nextCol = col + direction[1];
 			
 			if(!board.isInside(nextRow, nextCol)) {
 				continue;
@@ -49,17 +46,25 @@ public class King extends Piece{
 			
 			Position move = new Position(nextRow, nextCol);
 			
-			if(board.hasPiece(move) && board.getPiece(move).color == color) {
+			if(board.hasPiece(move)
+					&& board.getPiece(move).color == color) {
 				continue;
 			}
 			
-			if(!RuleManager.isPositionAttacked(board, move, color)) {
-				moves.add(move);
-			}
+			positions.add(move);
 		}
+		
+		return positions;
+	}
+	
+	@Override
+	public List<Position> getPossibleMoves(Board board) {
+		List<Position> moves = super.getPossibleMoves(board);
 		
 		if(!RuleManager.isKingInCheck(board, this)) {
 			int direction = board.canCastling(this);
+			int row = position.getRow();
+			int col = position.getCol();
 			
 			if((direction & LEFT) != 0) {
 				moves.add(new Position(row, col - 2));

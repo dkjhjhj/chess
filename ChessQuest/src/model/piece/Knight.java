@@ -9,34 +9,31 @@ import model.Position;
 import rule.RuleManager;
 
 public class Knight extends Piece{
+	private int [][] directions = {
+			{1, 2},
+			{1, -2},
+			{-1, 2},
+			{-1, -2},
+			{2, 1},
+			{2, -1},
+			{-2, 1},
+			{-2, -1}
+	};
+	
 	public Knight(Color color, Position position) {
 		super(color, position);
 	}
 	
 	@Override
-	public List<Position> getPossibleMoves(Board board) {
-		List<Position> moves = new ArrayList<>();
-		
-		int[][] directions = {
-				{1, 2},
-				{1, -2},
-				{-1, 2},
-				{-1, -2},
-				{2, 1},
-				{2, -1},
-				{-2, 1},
-				{-2, -1}
-		};
+	protected List<Position> getRawPositions(Board board) {
+		List<Position> positions = new ArrayList<>();
 		
 		int row = position.getRow();
 		int col = position.getCol();
 		
 		for(int[] direction : directions) {
-			int dr = direction[0];
-			int dc = direction[1];
-			
-			int nextRow = row + dr;
-			int nextCol = col + dc;
+			int nextRow = row + direction[0];
+			int nextCol = col + direction[1];
 			
 			if(!board.isInside(nextRow, nextCol)) {
 				continue;
@@ -44,18 +41,14 @@ public class Knight extends Piece{
 			
 			Position move = new Position(nextRow, nextCol);
 			
-			if(board.hasPiece(move) && board.getPiece(move).getColor() == color) {
+			if(board.hasPiece(move)
+					&& board.getPiece(move).getColor() == color) {
 				continue;
 			}
 			
-			if(!RuleManager.isLegalMove(board, position, move)) {
-				continue;
-			}
-			
-			moves.add(move);
+			positions.add(move);
 		}
 		
-		return moves;
+		return positions;
 	}
-
 }

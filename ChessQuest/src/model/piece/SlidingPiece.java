@@ -9,15 +9,15 @@ import model.Position;
 import rule.RuleManager;
 
 public abstract class SlidingPiece extends Piece {
+	protected abstract int[][] getDirections();
+	
 	public SlidingPiece(Color color, Position position) {
 		super(color, position);
 	}
 	
-	protected abstract int[][] getDirections();
-	
 	@Override
-	public List<Position> getPossibleMoves(Board board) {
-		List<Position> moves = new ArrayList<>();
+	protected List<Position> getRawPositions(Board board) {
+		List<Position> positions = new ArrayList<>();
 		
 		int row = position.getRow();
 		int col = position.getCol();
@@ -25,7 +25,7 @@ public abstract class SlidingPiece extends Piece {
 		for(int[] direction : getDirections()) {
 			int dr = direction[0];
 			int dc = direction[1];
-		
+			
 			int nextRow = row + dr;
 			int nextCol = col + dc;
 		
@@ -37,9 +37,7 @@ public abstract class SlidingPiece extends Piece {
 					break;
 				}
 				
-				if(RuleManager.isLegalMove(board, position, move)) {
-					moves.add(move);
-				}
+				positions.add(move);
 				
 				if (target != null) {
 			        break;
@@ -50,6 +48,6 @@ public abstract class SlidingPiece extends Piece {
 			}
 		}
 		
-		return moves;
+		return positions;
 	}
 }

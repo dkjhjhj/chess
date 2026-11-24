@@ -1,10 +1,12 @@
 package model.piece;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import model.Board;
 import model.Color;
 import model.Position;
+import rule.RuleManager;
 
 public abstract class Piece {
 	protected Color color;
@@ -27,9 +29,21 @@ public abstract class Piece {
 		this.position = position;
 	}
 	
-	public abstract List<Position> getPossibleMoves(Board board);
+	public List<Position> getPossibleMoves(Board board) {
+		List<Position> moves = new ArrayList<>();
+		
+		for(Position move : getRawPositions(board)) {
+			if(RuleManager.isLegalMove(board, position, move)) {
+				moves.add(move);
+			}
+		}
+		
+		return moves;
+	}
 	
 	public List<Position> getAttackPositions(Board board) {
-        return getPossibleMoves(board);
-    }
+		return getRawPositions(board);
+	}
+	
+	protected abstract List<Position> getRawPositions(Board board);
 }
