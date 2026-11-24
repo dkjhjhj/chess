@@ -176,6 +176,10 @@ public class ChessGame {
 		}
 	}
 	
+	public Position getSelectPosition() {
+		return selectPosition;
+	}
+	
 	/**
 	 * 한 좌표에서 다른 좌표로 기물을 이동시킨다.
 	 * 
