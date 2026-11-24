@@ -3,10 +3,10 @@ package UI;
 import java.awt.*;
 import javax.swing.*;
 
+
 public class ChessSquare extends JButton {
 	private int row;
 	private int col;
-
 	public ChessSquare(int row, int col) {
 		super("");
 		this.row = row;
