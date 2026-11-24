@@ -3,20 +3,25 @@ package model;
 import java.util.Stack;
 
 import game.ChessGame;
-import game.RuleManager;
-import model.piece.Bishop;
 import model.piece.King;
-import model.piece.Knight;
-import model.piece.Pawn;
 import model.piece.Piece;
 import model.piece.PieceType;
-import model.piece.Queen;
-import model.piece.Rook;
+import rule.special.Castling;
+import rule.special.EnPassant;
+import rule.special.Promotion;
 
 public class Board {
 	private Piece[][] board;
 	private Stack<Move> moveHistory = new Stack<>();
-	private Piece enPassantPawn;
+	
+	private Castling castling = new Castling();
+	private EnPassant enPassant = new EnPassant();
+	private Promotion promotion = new Promotion();
+	
+	/**
+	 * 1. 룩과 킹 실제 이동시 setMoving 함수 불러야함
+	 * 2. 캐슬링 따로 만들어야함
+	 */
 	
 	public Board() {
 		board = new Piece[ChessGame.BOARD_HEIGHT][ChessGame.BOARD_WIDTH];
@@ -53,27 +58,14 @@ public class Board {
 			throw new IllegalArgumentException("해당 위치에 기물이 없습니다.");
 		}
 		
-		Piece capturedPiece;
-		Piece previousEnPassant = null;
-		if(isEnPassantMove(piece, to)) {
-			capturedPiece = enPassantPawn;
-			previousEnPassant = enPassantPawn;
-			removePiece(enPassantPawn.getPosition());
-		} else {
-			capturedPiece = getPiece(to);
-			removePiece(to);
-		}
+		Piece capturedPiece = enPassant.getCapturedPiece(this, piece, to);
 		
 		removePiece(from);
 		
-		enPassantPawn = null;
-		if(canEnPassant(piece, to)) {
-			enPassantPawn = piece;
-		}
-		
 		Move move = new Move(from, to, capturedPiece);
 		
-		move.setPreviousEnPassant(previousEnPassant);
+		enPassant.updateAfterMove(piece, to, move);
+		
 		setPiece(to, piece);
 		moveHistory.add(move);
 	}
@@ -98,121 +90,21 @@ public class Board {
 			setPiece(capturedPiece.getPosition(), capturedPiece);
 		}
 		
-		// 앙파상 여부 복구
-		if(enPassantPawn != null) {
-			enPassantPawn = null;
-		}
-		
-		if(move.getPreviousEnPassant() != null) {
-			enPassantPawn = move.getPreviousEnPassant();
-		}
+		enPassant.undo(move);
 		
 		return true;
 	}
 	
 	public void promote(Position position, PieceType pieceType) {
-		Piece pawn = getPiece(position);
-		
-		if(!(pawn instanceof Pawn)) {
-			throw new IllegalArgumentException("폰이 아닙니다.");
-		}
-		
-		Move move = moveHistory.peek();
-		
-		move.setOriginalPiece(pawn);
-		move.setPromotionType(pieceType);
-		
-		Piece promotionPiece = createPiece(pieceType, pawn.getColor(), position);
-		setPiece(position, promotionPiece);
+		promotion.promote(this, position, pieceType, moveHistory.peek());
 	}
 	
 	public int canCastling(Piece piece) {
-		if(!(piece instanceof King)) {
-			return 0;
-		}
-		
-		King king = (King)piece;
-		
-		if(king.getMoving()) {
-			return 0;
-		}
-		
-		Color color = king.getColor();
-		int kingR = king.getPosition().getRow();
-		
-		Position leftSidePosition = new Position(kingR, 0);
-		Position rightSidePosition = new Position(kingR, ChessGame.BOARD_WIDTH - 1);
-		
-		int direction = 0;
-		
-		direction |= (isValidRook(color, leftSidePosition)) ? King.LEFT : 0;
-		direction |= (isValidRook(color, rightSidePosition)) ? King.RIGHT : 0;
-		
-		direction = isCastlingPathValid(king, direction);
-		
-		return direction;
+		return castling.getAvailableDirections(this, piece);
 	}
 	
-	private int isCastlingPathValid(King king, int direction) {
-		if((direction & King.LEFT) != 0) {
-			direction = checkCastlingPath(king, direction, King.LEFT);
-		}
-		
-		if((direction & King.RIGHT) != 0) {
-			direction = checkCastlingPath(king, direction, King.RIGHT);
-		}
-		
-		return direction;
-	}
-	
-	private int checkCastlingPath(King king, int direction, int side) {
-		int kingR = king.getPosition().getRow();
-		int kingC = king.getPosition().getCol();
-		
-		int step = (side == King.LEFT) ? -1 : 1;
-		int limit = (side == King.LEFT) ? 0 : ChessGame.BOARD_WIDTH - 1;
-		
-		for(int i = kingC + step; i != limit; i += step) {
-			Position position = new Position(kingR, i);
-			
-			if(getPiece(position) != null) {
-				return direction & ~side;
-			}
-			
-			if(Math.abs(kingC - i) <= 2 &&
-					RuleManager.isPositionAttacked(this, position, king.getColor())) {
-				return direction & ~side;
-			}
-		}
-		
-		return direction;
-	}
-	
-	private boolean isValidRook(Color color, Position position) {
-		Piece piece = getPiece(position);
-		
-		if(!(piece instanceof Rook)) {
-			return false;
-		}
-		
-		Rook rook = (Rook)piece;
-		
-		return !rook.getMoving() && rook.getColor() == color;		
-	}
-	
-	private Piece createPiece(PieceType type, Color color, Position position) {
-		switch(type) {
-		case PieceType.ROOK:
-			return new Rook(color, position);
-		case PieceType.KNIGHT:
-			return new Knight(color, position);
-		case PieceType.BISHOP:
-			return new Bishop(color, position);
-		case PieceType.QUEEN:
-			return new Queen(color, position);
-		default:
-			return null;
-		}
+	public Piece getEnPassantPawn() {
+		return enPassant.getEnPassantPawn();
 	}
 	
 	public King getKing(Color color) {
@@ -233,28 +125,4 @@ public class Board {
 	    return row >= 0 && row < ChessGame.BOARD_HEIGHT
 	        && col >= 0 && col < ChessGame.BOARD_WIDTH;
 	}
-	
-	private boolean canEnPassant(Piece piece, Position to) {
-		return piece instanceof Pawn && 
-				Math.abs(to.getRow() - piece.getPosition().getRow()) == 2;
-		
-	}
-	
-	private boolean isEnPassantMove(Piece piece, Position to) {
-		if(enPassantPawn != null &&														// 앙파상한 기물이 있어야 한다.
-				piece instanceof Pawn &&												// 움직인 기물이 폰이어야 한다.
-				piece.getAttackPositions(this).contains(to) &&							// 그 폰이 공격해야한다.
-				piece.getPosition().getRow() == enPassantPawn.getPosition().getRow() &&	// 폰과 앙파상 폰이 같은 열에 있어야 한다.
-				to.getCol() == enPassantPawn.getPosition().getCol()) {					// 목적지가 앙파상 폰과 같은 행에 위치해야 한다.
-			return true;
-		}
-		
-		return false;
-	}
-	
-	public Piece getEnPassantPawn() {
-		return enPassantPawn;
-	}
-	
-	
 }

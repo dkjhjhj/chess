@@ -3,10 +3,10 @@ package model.piece;
 import java.util.ArrayList;
 import java.util.List;
 
-import game.RuleManager;
 import model.Board;
 import model.Color;
 import model.Position;
+import rule.RuleManager;
 
 public class Pawn extends Piece {	
 	public Pawn(Color color, Position position) {

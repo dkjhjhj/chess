@@ -1,4 +1,4 @@
-package game;
+package rule;
 
 import model.Board;
 import model.Color;

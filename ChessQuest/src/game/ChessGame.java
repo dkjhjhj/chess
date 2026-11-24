@@ -14,6 +14,7 @@ import model.piece.Piece;
 import model.piece.PieceType;
 import model.piece.Queen;
 import model.piece.Rook;
+import rule.RuleManager;
 
 public class ChessGame {
 	public static final int BOARD_WIDTH = 8;

@@ -3,10 +3,10 @@ package model.piece;
 import java.util.ArrayList;
 import java.util.List;
 
-import game.RuleManager;
 import model.Board;
 import model.Color;
 import model.Position;
+import rule.RuleManager;
 
 public class King extends Piece{
 	public static final int LEFT = 1;
@@ -80,11 +80,4 @@ public class King extends Piece{
 	public void setMoving() {
 		isMove = true;
 	}
-	
-	/** 캐슬링
-	 *  조건 3. 킹과 룩 사이 어떠한 기물도 있으면 안된다.
-	 *  조건 4. 킹과 룩 사이, 정확히는 캐슬링을 위한 공간인 킹으로부터 움직일 방향 2칸 내가 공격받아선 안된다.
-	 *  -> RuleManager의 isPositionAttacked() 함수에서 쉽게 체크 가능
-	 *  
-	 */
 }
