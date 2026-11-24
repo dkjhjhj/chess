@@ -26,7 +26,7 @@ public class Rook extends SlidingPiece {
 		return isMove;
 	}
 	
-	public void setMoving() {
-		isMove = true;
+	public void setMoving(boolean state) {
+		isMove = state;
 	}
 }

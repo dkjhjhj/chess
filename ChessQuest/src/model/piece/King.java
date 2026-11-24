@@ -82,7 +82,7 @@ public class King extends Piece{
 		return isMove;
 	}
 	
-	public void setMoving() {
-		isMove = true;
+	public void setMoving(boolean state) {
+		isMove = state;
 	}
 }

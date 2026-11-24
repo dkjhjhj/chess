@@ -35,6 +35,38 @@ public class Castling {
 		return filterCastlingDirections(board, king, direction);
 	}
 	
+	public boolean isCastlingMove(Board board, King king, Position to) {
+		int distance = to.getCol() - king.getPosition().getCol();
+		
+		if(to.getRow() != king.getPosition().getRow()) {
+			return false;
+		}
+		
+		if(Math.abs(distance) <= 1) {
+			return false;
+		}
+		
+		int direction = (distance > 0) ? King.RIGHT : King.LEFT;
+		
+		return (getAvailableDirections(board, king) & direction) != 0;
+	}
+	
+	public Position rookFrom(King king, int direction) {
+		int row = king.getPosition().getRow();
+		int col = (direction == King.LEFT) ? 0 : ChessGame.BOARD_WIDTH - 1;
+		
+		return new Position(row, col);
+	}
+	
+	public Position rookTo(King king, int direction) {
+		Position kingFrom = king.getPosition();
+		
+		int row = kingFrom.getRow();
+		int col = (direction == King.LEFT) ? kingFrom.getCol() - 1 : kingFrom.getCol() + 1;
+		
+		return new Position(row, col);
+	}
+	
 	private int filterCastlingDirections(Board board, King king, int direction) {
 		if((direction & King.LEFT) != 0) {
 			direction = checkCastlingPath(board, king, direction, King.LEFT);

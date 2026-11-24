@@ -6,6 +6,7 @@ import game.ChessGame;
 import model.piece.King;
 import model.piece.Piece;
 import model.piece.PieceType;
+import model.piece.Rook;
 import rule.special.Castling;
 import rule.special.EnPassant;
 import rule.special.Promotion;
@@ -64,11 +65,40 @@ public class Board {
 			throw new IllegalArgumentException("해당 위치에 기물이 없습니다.");
 		}
 		
+		if(piece instanceof King) {
+			King king = (King)piece;
+			
+			if(castling.isCastlingMove(this, king, to)) {
+				moveCastling(king, to);
+				return;
+			}
+		}
+		
+		
+		
 		Piece capturedPiece = enPassant.getCapturedPiece(this, piece, to);
 		
 		removePiece(from);
 		
 		Move move = new Move(from, to, capturedPiece);
+		
+		if(piece instanceof King) {
+			King king = (King)piece;
+			
+			if(!king.getMoving()) {
+				move.setFisrtMove(true);
+				king.setMoving(true);
+			}
+		}
+		
+		if (piece instanceof Rook) {
+			Rook rook = (Rook)piece;
+			
+			if(!rook.getMoving()) {
+				move.setFisrtMove(true);
+				rook.setMoving(true);
+			}
+		}
 		
 		enPassant.updateAfterMove(piece, to, move);
 		
@@ -82,6 +112,12 @@ public class Board {
 		}
 		
 		Move move = moveHistory.pop();
+		
+		if(move.isCastling()) {
+			undoCastling(move);
+			return true;
+		}
+		
 		Piece piece = getPiece(move.getTo());
 		
 		if(move.getPromotionType() != null) {
@@ -96,9 +132,74 @@ public class Board {
 			setPiece(capturedPiece.getPosition(), capturedPiece);
 		}
 		
+		if(move.getFirstMove()) {
+			if(piece instanceof King) {
+				((King)piece).setMoving(false);
+			}
+			
+			if(piece instanceof Rook) {
+				((Rook)piece).setMoving(false);
+			}
+		}
+		
 		enPassant.undo(move);
 		
 		return true;
+	}
+	
+	private void moveCastling(King king, Position to) {
+		Position kingFrom = king.getPosition();
+		
+		int direction = (to.getCol() < kingFrom.getCol()) ? King.LEFT : King.RIGHT;
+		
+		Position rookFrom = castling.rookFrom(king, direction);
+		Position rookTo = castling.rookTo(king, direction);
+		
+		Rook rook = (Rook)getPiece(rookFrom);
+		
+		if (!(rook instanceof Rook)) {
+			throw new IllegalStateException("캐슬링할 룩이 없습니다.");
+		}
+		
+		Move move = new Move(kingFrom, to, null);
+		move.setCastlingDirection(direction);
+		move.setCastlingRook(rook);
+		
+		enPassant.updateAfterMove(king, to, move);
+		
+		removePiece(kingFrom);
+		removePiece(rookFrom);
+		
+		setPiece(to, king);
+		setPiece(rookTo, rook);
+		
+		king.setMoving(true);
+		rook.setMoving(true);
+		
+		moveHistory.add(move);
+	}
+	
+	private void undoCastling(Move move) {
+		int direction = move.getCastlingDirection();
+		Rook rook = (Rook)move.getCastlingRook();
+		King king = (King)getPiece(move.getTo());
+		
+		int row = move.getFrom().getRow();
+		int rookFromCol = (direction == King.LEFT) ? 0 : ChessGame.BOARD_WIDTH - 1;
+		
+		Position rookFrom = new Position(row, rookFromCol);
+		Position rookTo = rook.getPosition();
+		
+		removePiece(move.getTo());
+		removePiece(rookTo);
+		
+		setPiece(move.getFrom(), king);
+		setPiece(rookFrom, rook);
+		
+		king.setMoving(false);
+	    rook.setMoving(false);
+	    
+	    enPassant.undo(move);
 	}
 	
 	public void promote(Position position, PieceType pieceType) {
