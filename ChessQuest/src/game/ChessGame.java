@@ -25,13 +25,14 @@ public class ChessGame {
 	private boolean gameOver = false;
 	private Position pendingPromotion;
 	
+	private Position selectPosition;
+	
 	public ChessGame() {
 		board = new Board();
 		initializeBoard();
 	}
 	
 	private void initializeBoard() {
-		// 폰 배치
 		for(int col = 0; col < BOARD_WIDTH; col++) {
 			Pawn whitePawn = new Pawn(Color.WHITE, new Position(BOARD_HEIGHT - 2, col));
 			Pawn blackPawn = new Pawn(Color.BLACK, new Position(1, col));
@@ -43,7 +44,6 @@ public class ChessGame {
 		Piece[] whitePieces = createBackRow(Color.WHITE, BOARD_HEIGHT - 1);
 		Piece[] blackPieces = createBackRow(Color.BLACK, 0);
 		
-		// 후열 배치
 		for(int i = 0; i < whitePieces.length; i++) {
 			board.setPiece(whitePieces[i].getPosition(), whitePieces[i]);
 			board.setPiece(blackPieces[i].getPosition(), blackPieces[i]);
@@ -146,12 +146,43 @@ public class ChessGame {
 	}
 	
 	/**
+	 * 보드의 칸을 클릭했을 때 기물 선택 또는 이동을 처리한다.
+	 * 
+	 * @param position 클릭한 칸의 좌표
+	 */
+	public void handleBoardClick(Position position) {
+		if(selectPosition == null) {
+			if(isSelectable(position)) {
+				selectPosition = position;
+			}
+			
+			return;
+		}
+		
+		if(selectPosition.equals(position)) {
+			selectPosition = null;
+			return;
+		}
+		
+		if(getPossibleMoves(selectPosition).contains(position)) {
+			movePiece(selectPosition, position);
+			selectPosition = null;
+			return;
+		}
+		
+		selectPosition = null;
+		if(isSelectable(position)) {
+			selectPosition = position;
+		}
+	}
+	
+	/**
 	 * 한 좌표에서 다른 좌표로 기물을 이동시킨다.
 	 * 
 	 * @param from 기물이 위치할 첫 번째 좌표
 	 * @param to 기물이 이동할 두 번째 좌표
 	 */
-	public void movePiece(Position from, Position to) {
+	private void movePiece(Position from, Position to) {
 		board.movePiece(from, to);
 			if(isPromotion(to)) {
 				pendingPromotion = to;
