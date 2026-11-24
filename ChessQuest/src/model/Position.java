@@ -22,6 +22,16 @@ public class Position {
 		setPosition(pos.row, pos.col);
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj) return true;
+		if(!(obj instanceof Position)) return false;
+		
+		Position other = (Position) obj;
+		return row == other.getRow()
+				&& col == other.getCol();
+	}
+	
 	public int getRow() {
 		return row;
 	}
