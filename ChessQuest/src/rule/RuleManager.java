@@ -1,4 +1,4 @@
-package game;
+package rule;
 
 import model.Board;
 import model.Color;
@@ -40,6 +40,7 @@ public class RuleManager {
 		
 		return isSafe;
 	}
+	
 	
 	public static boolean hasAnyLegalMove(Board board, Color color) {
 		for (int row = 0; row < 8; row++) {

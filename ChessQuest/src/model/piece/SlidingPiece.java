@@ -3,10 +3,10 @@ package model.piece;
 import java.util.ArrayList;
 import java.util.List;
 
-import game.RuleManager;
 import model.Board;
 import model.Color;
 import model.Position;
+import rule.RuleManager;
 
 public abstract class SlidingPiece extends Piece {
 	public SlidingPiece(Color color, Position position) {

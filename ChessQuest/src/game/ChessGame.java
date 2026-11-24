@@ -14,6 +14,7 @@ import model.piece.Piece;
 import model.piece.PieceType;
 import model.piece.Queen;
 import model.piece.Rook;
+import rule.RuleManager;
 
 public class ChessGame {
 	public static final int BOARD_WIDTH = 8;
@@ -110,6 +111,14 @@ public class ChessGame {
 		return currentTurn;
 	}
 
+	/**
+	 * 보드판 전체를 반환한다.
+	 * @return 기물들의 8x8 배열
+	 */
+	public Piece[][] getBoard() {
+		return board.getBoard();
+	}
+	
 	/**
 	 * 특정 좌표에 위치한 기물을 반환한다.
 	 *

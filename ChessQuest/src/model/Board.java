@@ -3,18 +3,25 @@ package model;
 import java.util.Stack;
 
 import game.ChessGame;
-import model.piece.Bishop;
 import model.piece.King;
-import model.piece.Knight;
-import model.piece.Pawn;
 import model.piece.Piece;
 import model.piece.PieceType;
-import model.piece.Queen;
-import model.piece.Rook;
+import rule.special.Castling;
+import rule.special.EnPassant;
+import rule.special.Promotion;
 
 public class Board {
 	private Piece[][] board;
 	private Stack<Move> moveHistory = new Stack<>();
+	
+	private Castling castling = new Castling();
+	private EnPassant enPassant = new EnPassant();
+	private Promotion promotion = new Promotion();
+	
+	/**
+	 * 1. 룩과 킹 실제 이동시 setMoving 함수 불러야함
+	 * 2. 캐슬링 따로 만들어야함
+	 */
 	
 	public Board() {
 		board = new Piece[ChessGame.BOARD_HEIGHT][ChessGame.BOARD_WIDTH];
@@ -36,6 +43,10 @@ public class Board {
 		}
 	}
 	
+	public Piece[][] getBoard() {
+		return board;
+	}
+	
 	public void removePiece(Position position) {
         board[position.getRow()][position.getCol()] = null;
     }
@@ -47,12 +58,15 @@ public class Board {
 			throw new IllegalArgumentException("해당 위치에 기물이 없습니다.");
 		}
 		
-		Piece capturedPiece = getPiece(to);
-		Move move = new Move(from, to, capturedPiece);
+		Piece capturedPiece = enPassant.getCapturedPiece(this, piece, to);
 		
-		setPiece(to, piece);
 		removePiece(from);
 		
+		Move move = new Move(from, to, capturedPiece);
+		
+		enPassant.updateAfterMove(piece, to, move);
+		
+		setPiece(to, piece);
 		moveHistory.add(move);
 	}
 	
@@ -72,41 +86,25 @@ public class Board {
 		removePiece(move.getTo());
 		
 		if(move.getCapturedPiece() != null) {
-			setPiece(move.getTo(), move.getCapturedPiece());
+			Piece capturedPiece = move.getCapturedPiece();
+			setPiece(capturedPiece.getPosition(), capturedPiece);
 		}
+		
+		enPassant.undo(move);
 		
 		return true;
 	}
 	
 	public void promote(Position position, PieceType pieceType) {
-		Piece pawn = getPiece(position);
-		
-		if(!(pawn instanceof Pawn)) {
-			throw new IllegalArgumentException("폰이 아닙니다.");
-		}
-		
-		Move move = moveHistory.peek();
-		
-		move.setOriginalPiece(pawn);
-		move.setPromotionType(pieceType);
-		
-		Piece promotionPiece = createPiece(pieceType, pawn.getColor(), position);
-		setPiece(position, promotionPiece);
+		promotion.promote(this, position, pieceType, moveHistory.peek());
 	}
 	
-	private Piece createPiece(PieceType type, Color color, Position position) {
-		switch(type) {
-		case PieceType.ROOK:
-			return new Rook(color, position);
-		case PieceType.KNIGHT:
-			return new Knight(color, position);
-		case PieceType.BISHOP:
-			return new Bishop(color, position);
-		case PieceType.QUEEN:
-			return new Queen(color, position);
-		default:
-			return null;
-		}
+	public int canCastling(Piece piece) {
+		return castling.getAvailableDirections(this, piece);
+	}
+	
+	public Piece getEnPassantPawn() {
+		return enPassant.getEnPassantPawn();
 	}
 	
 	public King getKing(Color color) {

@@ -3,12 +3,17 @@ package model.piece;
 import java.util.ArrayList;
 import java.util.List;
 
-import game.RuleManager;
 import model.Board;
 import model.Color;
 import model.Position;
+import rule.RuleManager;
 
 public class King extends Piece{
+	public static final int LEFT = 1;
+	public static final int RIGHT = 2;
+	
+	private boolean isMove = false;
+	
 	public King(Color color, Position position) {
 		super(color, position);
 	}
@@ -53,6 +58,26 @@ public class King extends Piece{
 			}
 		}
 		
+		if(!RuleManager.isKingInCheck(board, this)) {
+			int direction = board.canCastling(this);
+			
+			if((direction & LEFT) != 0) {
+				moves.add(new Position(row, col - 2));
+			}
+			
+			if((direction & RIGHT) != 0) {
+				moves.add(new Position(row, col + 2));
+			}
+		}
+		
 		return moves;
+	}
+	
+	public boolean getMoving() {
+		return isMove;
+	}
+	
+	public void setMoving() {
+		isMove = true;
 	}
 }
