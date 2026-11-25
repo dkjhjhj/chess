@@ -3,6 +3,7 @@ package game;
 import java.util.ArrayList;
 import java.util.List;
 
+import ServerClient.ChessInf;
 import model.Board;
 import model.Color;
 import model.Position;
@@ -165,7 +166,7 @@ public class ChessGame {
 		}
 		
 		if(getPossibleMoves(selectPosition).contains(position)) {
-			movePiece(selectPosition, position);
+			//movePiece(selectPosition, position);
 			selectPosition = null;
 			return;
 		}
@@ -174,6 +175,10 @@ public class ChessGame {
 		if(isSelectable(position)) {
 			selectPosition = position;
 		}
+	}
+	
+	public void handleRemoteMove(ChessInf info) {
+		movePiece(info.getFrom(), info.getTo());
 	}
 	
 	public Position getSelectPosition() {
