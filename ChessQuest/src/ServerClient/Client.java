@@ -247,9 +247,10 @@ public class Client {
 			ChessInf chessInf;
 			while ((chessInf = (ChessInf) in.readObject()) != null) {
 				data = chessInf;
-				ui.setData(data);
+				ui.getGame().handleRemoteMove(data);
+				ui.refresh();
 				chessInf = null;
-				System.out.println(ui.getData().getFrom() + " "+ ui.getData().getTo());
+				//System.out.println(ui.getData().getFrom() + " "+ ui.getData().getTo());
 			}
 
 		} catch (IOException e){
