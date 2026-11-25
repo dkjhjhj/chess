@@ -9,9 +9,12 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -31,6 +34,7 @@ public class Server {
 	private ServerSocket serverSocket;
 	private Thread acceptThread = null;
 	private Vector<ClientHandler> users = new Vector<>();
+	private ObjectInputStream in;
 	
 	public Server(int port) {
 		this.port = port;
@@ -179,12 +183,13 @@ public class Server {
 	public class ClientHandler extends Thread{
 		private Socket clientSocket;
 		private String uid;
-		private BufferedWriter out;
+		private ObjectOutputStream out;
+		//private ChessInf chessInf;
 		
 		public ClientHandler(Socket clientSocket) {
 			this.clientSocket = clientSocket;
 		}
-		private void receiveMessages(Socket cs) {
+		/*private void receiveMessages(Socket cs) {
 			try {
 				BufferedReader in = new BufferedReader(new InputStreamReader(cs.getInputStream(),"UTF-8"));
 				out = new BufferedWriter(new OutputStreamWriter(cs.getOutputStream(),"UTF-8"));
@@ -219,8 +224,33 @@ public class Server {
 					System.exit(-1);
 				}
 			}
+		}*/
+		private void receiveMessages(Socket cs) {
+			try {
+				out = new ObjectOutputStream(new DataOutputStream(cs.getOutputStream()));
+				in = new ObjectInputStream(cs.getInputStream());
+				ChessInf chessInf;
+				while ((chessInf = (ChessInf) in.readObject()) != null) {
+					broadcasting(chessInf);
+				}
+
+			} catch (IOException e){
+				printDisplay("서버 읽기 오류> " + e.getMessage());
+			}catch (ClassNotFoundException e) {
+			    System.out.println("클래스 찾기 오류> ." + e.getMessage());
+			}
+			/*finally {
+				try {
+					cs.close();
+				} catch (IOException e){
+					printDisplay("서버 닫기 오류> " + e.getMessage());
+					System.err.println("서버 닫기 오류> " + e.getMessage());
+					System.exit(-1);
+				}
+			}*/
 		}
-		private void sendMessage(String msg) {
+
+		/*private void sendMessage(String msg) {
 			try {
 				out.write(msg + "\n");
 				out.flush();
@@ -228,16 +258,30 @@ public class Server {
 				System.err.println("클라이언트 쓰기 오류> " + e.getMessage());
 				return;
 			} 
+		}*/
+		private void sendMessage(ChessInf data) {
+			
+			try {
+				ChessInf chessInf = data;
+				out.writeObject(chessInf);
+				out.flush();
+			} catch (IOException e){
+				System.err.println("클라이언트 쓰기 오류> " + e.getMessage());
+				return;
+			} catch (NumberFormatException e){
+				System.err.println("클라이언트 정수 오류> " + e.getMessage());
+				return;
+			}
 		}
-		private void broadcasting(String msg) {
+		private void broadcasting(ChessInf data) {
 			for(int i=0;i<users.size();i++) {
-				users.get(i).sendMessage(msg);
+				users.get(i).sendMessage(data);
 			}
 		}
 		
 		@Override
 		public void run() {
-			//receiveMessages(clientSocket);
+			receiveMessages(clientSocket);
 		}
 	}
 	

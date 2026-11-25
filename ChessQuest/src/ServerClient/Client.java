@@ -192,7 +192,7 @@ public class Client {
 				@Override
 				public void run() {
 					while(receiveThread == Thread.currentThread()) {
-						//receiveMessage();
+						receiveMessage();
 					}
 					
 				}
@@ -228,8 +228,8 @@ public class Client {
 
 	public void sendMessage(ChessInf data) {
 		try {
-			
 			ChessInf chessInf = data;
+			//System.out.println(chessInf.getFrom() + " "+ chessInf.getTo().getCol());
 			out.writeObject(chessInf);
 			out.flush();
 		} catch (IOException e){
@@ -246,7 +246,10 @@ public class Client {
 			in = new ObjectInputStream(socket.getInputStream());
 			ChessInf chessInf;
 			while ((chessInf = (ChessInf) in.readObject()) != null) {
-				
+				data = chessInf;
+				ui.setData(data);
+				chessInf = null;
+				System.out.println(ui.getData().getFrom() + " "+ ui.getData().getTo());
 			}
 
 		} catch (IOException e){
@@ -262,4 +265,4 @@ public class Client {
 		int serverPort = 54321;
 		Client a = new Client(serverAddress, serverPort);
 	}
-}
+}//서버주소, 포트 get함수 만들기 정보 보내면 리시브할때 refresh하기 서버 send, recieve 오브젝트로 고치기 보내지나 확인하기

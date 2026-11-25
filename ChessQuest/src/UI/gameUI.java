@@ -13,6 +13,7 @@ public class gameUI extends JPanel{
 	private ChessPanel chessPanel;
 	private StatusPanel statusPanel;
 	private Client client;
+	private ChessInf data;
 
 	public gameUI(Client client) {
 		this.client = client;
@@ -44,8 +45,11 @@ public class gameUI extends JPanel{
 		chessPanel.clearSelection();
 		refresh();
 	}
+	public void setData(ChessInf data) {
+		 this.data=data;
+	}
 	public ChessInf getData() {
-		return chessPanel.getData();
+		return data;
 	}
 	public Client getClient() {
 		return client;

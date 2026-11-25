@@ -14,7 +14,7 @@ public class ChessInf implements Serializable{
 	public ChessInf(Position from, Position to) {
 		this.from = from;
 		this.to = to;
-		this.id = id;
+		//this.id = id;
 	}
 	public void setPiece(Piece piece) {
 		this.piece = piece;
